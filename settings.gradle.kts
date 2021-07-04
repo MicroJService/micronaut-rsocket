@@ -1,3 +1,3 @@
-rootProject.name = "xxx"
+rootProject.name = "micronaut-rsocket"
 
-include("xxx")
+include("alibaba-rsocket")

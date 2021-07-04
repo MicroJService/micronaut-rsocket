@@ -9,7 +9,7 @@ buildscript {
 }
 
 subprojects {
-    group = "org.microjservice.xxx"
+    group = "org.microjservice.rsocket"
 
     apply(plugin = "io.micronaut.build.internal.common")
     apply(plugin = "io.micronaut.build.internal.dependency-updates")
