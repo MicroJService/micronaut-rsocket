@@ -20,7 +20,7 @@ val micronautDocsVersion: String by project
 val spockVersion: String by project
 val micronautTestVersion: String by project
 val alibabaRsocketVersion: String by project
-
+val zipkinVersion: String by project
 
 dependencies {
     annotationProcessor("io.micronaut:micronaut-inject-java")
@@ -28,12 +28,12 @@ dependencies {
 
     api("io.micronaut:micronaut-inject")
 
-    implementation("com.alibaba.rsocket","alibaba-rsocket-core",alibabaRsocketVersion)
-
+    implementation("com.alibaba.rsocket", "alibaba-rsocket-core", alibabaRsocketVersion)
+    implementation("io.zipkin.brave","brave",zipkinVersion)
     testImplementation("org.spockframework:spock-core:${spockVersion}") {
         exclude(module = "groovy-all")
     }
-    testImplementation( "io.micronaut.test:micronaut-test-spock:$micronautTestVersion")
+    testImplementation("io.micronaut.test:micronaut-test-spock:$micronautTestVersion")
 }
 
 tasks.withType<Test> {

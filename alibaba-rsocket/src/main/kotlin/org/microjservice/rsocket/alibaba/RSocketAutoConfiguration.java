@@ -1,5 +1,6 @@
 package org.microjservice.rsocket.alibaba;
 
+import brave.Tracing;
 import com.alibaba.rsocket.RSocketAppContext;
 import com.alibaba.rsocket.RSocketRequesterSupport;
 import com.alibaba.rsocket.cloudevents.CloudEventImpl;
@@ -22,6 +23,7 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requirements;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 import io.rsocket.SocketAcceptor;
 
 import reactor.core.publisher.Mono;
@@ -53,13 +55,13 @@ public class RSocketAutoConfiguration {
     }
 
     @Bean
-    public CloudEventsProcessor cloudEventsProcessor( @Named("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor,
+    public CloudEventsProcessor cloudEventsProcessor(@Named("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor,
                                                      BeanProvider<List<CloudEventsConsumer>> consumers) {
         return new CloudEventsProcessor(eventProcessor, consumers.get().stream().collect(Collectors.toList()));
     }
 
     @Bean
-    public UpstreamClusterChangedEventConsumer upstreamClusterChangedEventConsumer( UpstreamManager upstreamManager) {
+    public UpstreamClusterChangedEventConsumer upstreamClusterChangedEventConsumer(UpstreamManager upstreamManager) {
         return new UpstreamClusterChangedEventConsumer(upstreamManager);
     }
 
@@ -83,19 +85,17 @@ public class RSocketAutoConfiguration {
      * @return handler factor
      */
     @Bean
-    @Requires(missingBeans={RSocketResponderHandlerFactory.class})
+    @Requires(missingBeans = {RSocketResponderHandlerFactory.class, brave.Tracing.class})
 
-    @ConditionalOnMissingBean(type = {"brave.Tracing", "com.alibaba.rsocket.listen.RSocketResponderHandlerFactory"})
-    public RSocketResponderHandlerFactory rsocketResponderHandlerFactory(@Autowired LocalReactiveServiceCaller serviceCaller,
-                                                                         @Autowired @Qualifier("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor) {
+    public RSocketResponderHandlerFactory rsocketResponderHandlerFactory(LocalReactiveServiceCaller serviceCaller,
+                                                                         @Qualifier("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor) {
         return (setupPayload, requester) -> Mono.fromCallable(() -> new RSocketResponderHandler(serviceCaller, eventProcessor, requester, setupPayload));
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnBean(type = "brave.Tracing")
-    public RSocketResponderHandlerFactory rsocketResponderHandlerFactoryWithZipkin(@Autowired LocalReactiveServiceCaller serviceCaller,
-                                                                                   @Autowired @Qualifier("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor) {
+    @Requires(missing = RSocketResponderHandlerFactory.class,beans = brave.Tracing.class)
+    public RSocketResponderHandlerFactory rsocketResponderHandlerFactoryWithZipkin(LocalReactiveServiceCaller serviceCaller,
+                                                                                    @Qualifier("reactiveCloudEventProcessor") TopicProcessor<CloudEventImpl> eventProcessor) {
         return (setupPayload, requester) -> Mono.fromCallable(() -> {
             RSocketResponderHandler responderHandler = new RSocketResponderHandler(serviceCaller, eventProcessor, requester, setupPayload);
             Tracing tracing = applicationContext.getBean(Tracing.class);
@@ -105,11 +105,12 @@ public class RSocketAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(RSocketRequesterSupport.class)
-    public RSocketRequesterSupport rsocketRequesterSupport(@Autowired RSocketProperties properties,
-                                                           @Autowired Environment environment,
-                                                           @Autowired SocketAcceptor socketAcceptor,
-                                                           @Autowired ObjectProvider<RSocketRequesterSupportCustomizer> customizers) {
+
+    @Requires(missing = RSocketRequesterSupport.class)
+    public RSocketRequesterSupport rsocketRequesterSupport( RSocketProperties properties,
+                                                            Environment environment,
+                                                            SocketAcceptor socketAcceptor,
+                                                            ObjectProvider<RSocketRequesterSupportCustomizer> customizers) {
         RSocketRequesterSupportBuilderImpl builder = new RSocketRequesterSupportBuilderImpl(properties, new EnvironmentProperties(environment), socketAcceptor);
         customizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
         return builder.build();
