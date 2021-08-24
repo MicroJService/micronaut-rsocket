@@ -12,7 +12,6 @@ plugins {
 
     id("groovy")
     id("maven-publish")
-
 }
 
 
