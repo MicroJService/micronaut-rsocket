@@ -9,7 +9,7 @@ package org.microjservice.rsocket.alibaba
 import io.micronaut.context.annotation.ConfigurationProperties
 import com.alibaba.rsocket.route.RoutingEndpoint
 import com.alibaba.rsocket.transport.NetworkUtil
-import org.microjservice.rsocket.alibaba.Contants.Environment.PREFIX
+import org.microjservice.rsocket.alibaba.Constants.ENVIRONMENT.PREFIX
 import java.lang.Exception
 import java.net.URI
 
@@ -28,7 +28,7 @@ class RSocketProperties {
     /**
      * listen port, default is 42252, 0 means to disable listen
      */
-    var port = 0
+    var port: Int? = Integer.valueOf(0)
 
     /**
      * broker url, such tcp://127.0.0.1:42252

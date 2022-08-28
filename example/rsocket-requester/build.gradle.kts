@@ -3,16 +3,21 @@ plugins {
     val micronautPluginVersion: String by System.getProperties()
     val dokkaVersion: String by System.getProperties()
 
-//    id("io.micronaut.library") version micronautPluginVersion
-
-
-//    kotlin("jvm") version kotlinVersion
     kotlin("kapt")
     kotlin("plugin.allopen") version kotlinVersion
     id("org.jetbrains.dokka") version dokkaVersion
+    id("io.micronaut.application") version "3.0.1"
 
     id("groovy")
-    id("maven-publish")
+}
+
+micronaut {
+    runtime("netty")
+    testRuntime("spock2")
+    processing {
+        incremental(true)
+        annotations("com.example.*")
+    }
 }
 
 
@@ -32,13 +37,14 @@ dependencies {
     testAnnotationProcessor("io.micronaut", "micronaut-inject-java")
 
 
-    api("io.micronaut:micronaut-inject")
-    api(project(":rsocket-core"))
+    implementation(project(":alibaba-rsocket"))
+    api(project(":example:user-service-api"))
 
     implementation("io.micronaut:micronaut-context")
     implementation("io.micronaut:micronaut-management")
 
     implementation("io.micrometer", "micrometer-registry-prometheus", "1.8.0")
+    implementation("com.github.javafaker:javafaker:1.0.2")
 
 
     implementation("com.alibaba.rsocket", "alibaba-rsocket-core", alibabaRsocketVersion)
@@ -51,4 +57,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+application {
+    mainClass.set("org.microjservice.rsocket.example.RSocketRequesterApp.kt")
 }

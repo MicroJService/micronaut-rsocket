@@ -1,0 +1,6 @@
+rsocket:
+  brokers: tcp://127.0.0.1:9999
+  port: 42252
+  metadata:
+    owner: CODERyELLOW
+  jwt-token: your_token_here
