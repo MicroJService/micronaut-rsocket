@@ -8,7 +8,7 @@ import jakarta.inject.Singleton
 
 
 @MustBeDocumented
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 @Introduction
 @Type(RSocketClientIntroductionAdvice::class)
 @Recoverable

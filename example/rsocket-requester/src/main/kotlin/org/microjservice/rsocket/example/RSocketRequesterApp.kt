@@ -1,16 +1,13 @@
 package org.microjservice.rsocket.example
 
-import io.micronaut.runtime.Micronaut.build
-
+import io.micronaut.runtime.Micronaut
 /**
- * RSocket Responder Server
+ * RSocket requester app
  *
  * @author leijuan
  */
-
-
 fun main(args: Array<String>) {
-    build()
+    Micronaut.build()
         .args(*args)
         .packages("org.microjservice.user")
         .start()

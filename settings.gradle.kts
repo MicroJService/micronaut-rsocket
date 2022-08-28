@@ -25,3 +25,5 @@ include("alibaba-rsocket")
 include("rsocket-core")
 include("example:rsocket-responder")
 include("example:user-service-api")
+include("example:rsocket-requester")
+findProject(":example:rsocket-requester")?.name = "rsocket-requester"
